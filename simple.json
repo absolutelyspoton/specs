@@ -1,0 +1,8 @@
+{
+  "Models": {
+    "User": {
+      "Relations": ["has many: Post"]
+    },
+    "Post": {}
+  }
+}
