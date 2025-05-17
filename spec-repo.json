@@ -19,7 +19,7 @@
       },
       {
         "name": "speclang v3",
-        "url": "https://raw.githubusercontent.com/absolutelyspoton/specs/refs/heads/main/speclang-spec-v3.json"
+        "url": "https://raw.githubusercontent.com/absolutelyspoton/specs/refs/heads/main/speclang-spec-v3.json",
         "format": "yaml"
       },
       {
