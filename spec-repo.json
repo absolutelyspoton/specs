@@ -14,17 +14,17 @@
       },
       {
         "name": "speclang v2",
-        "url": "https://raw.githubusercontent.com/absolutelyspoton/specs/refs/heads/main/specs/speclang-spec-v2.json",
+        "url": "https://raw.githubusercontent.com/absolutelyspoton/specs/refs/heads/main/speclang-spec-v2.json",
         "format": "yaml"
       },
       {
         "name": "speclang v3",
-        "url": "https://raw.githubusercontent.com/absolutelyspoton/specs/refs/heads/main/specs/speclang-spec-v3.json",
+        "url": "https://raw.githubusercontent.com/absolutelyspoton/specs/refs/heads/main/speclang-spec-v3.json"
         "format": "yaml"
       },
       {
         "name": "inventory management",
-        "url": "https://raw.githubusercontent.com/absolutelyspoton/specs/refs/heads/main/specs/specs/inventory_management.json",
+        "url": "https://raw.githubusercontent.com/absolutelyspoton/specs/refs/heads/main/inventory_management.json",
         "format": "yaml"
       }
     ]
