@@ -1,0 +1,520 @@
+{
+  "Application": "SpecLang",
+  "Description": "A declarative specification language for defining application behavior (v3 with all relationships explicit)",
+  "Events": {
+    "SpecificationCreated": {
+      "Description": "Triggered when a new specification is created",
+      "Payload": {
+        "specId": "Text",
+        "specName": "Text",
+        "creationTime": "DateTime"
+      }
+    },
+    "SpecificationValidated": {
+      "Description": "Triggered when a specification passes validation",
+      "Payload": {
+        "specId": "Text",
+        "validationResult": "Boolean",
+        "validationMessages": "List of Text"
+      }
+    },
+    "ElementDefined": {
+      "Description": "Triggered when any element (Model, View, etc.) is defined",
+      "Payload": {
+        "elementType": "Text",
+        "elementName": "Text",
+        "specId": "Text"
+      }
+    }
+  },
+  "Models": {
+    "Specification": {
+      "Description": "Represents a complete SpecLang specification",
+      "Attributes": {
+        "id": "Text required unique",
+        "name": "Text required",
+        "description": "Text optional",
+        "version": "Text required default('1.0.0')"
+      },
+      "Relations": [
+        "has many: Event",
+        "has many: Model",
+        "has many: View",
+        "has many: Controller",
+        "has many: Service"
+      ],
+      "Behaviors": {
+        "validate": {
+          "Description": "Validates the specification for completeness and correctness",
+          "Steps": [
+            "Check required sections exist",
+            "Validate all elements have required attributes",
+            "Verify event references are valid",
+            "Check model relations for consistency"
+          ],
+          "Publishes": {
+            "SpecificationValidated": "when validation completes"
+          }
+        },
+        "export": {
+          "Description": "Exports specification to a specific format",
+          "Steps": [
+            "Convert specification to target format",
+            "Generate output file"
+          ]
+        }
+      }
+    },
+    "DataType": {
+      "Description": "Represents a data type in SpecLang",
+      "Attributes": {
+        "name": "Text required unique",
+        "category": "Text required one of ('Basic', 'Collection', 'Custom')",
+        "baseType": "Text optional"
+      },
+      "Behaviors": {
+        "validateValue": {
+          "Description": "Validates if a value conforms to this type",
+          "Steps": [
+            "Check value against type constraints",
+            "Return validation result"
+          ]
+        }
+      }
+    },
+    "Constraint": {
+      "Description": "Represents a validation constraint for attributes",
+      "Attributes": {
+        "name": "Text required",
+        "parameters": "List of Any optional",
+        "errorMessage": "Text optional"
+      },
+      "Behaviors": {
+        "apply": {
+          "Description": "Applies constraint to a value",
+          "Steps": [
+            "Check value against constraint rules",
+            "Return constraint violation if any"
+          ]
+        }
+      }
+    },
+    "Event": {
+      "Description": "Represents an event in the specification",
+      "Attributes": {
+        "name": "Text required unique",
+        "description": "Text required",
+        "payloadSchema": "Map from Text to DataType"
+      },
+      "Behaviors": {
+        "validatePayload": {
+          "Description": "Validates if a payload conforms to the event schema",
+          "Steps": [
+            "Check payload structure against schema",
+            "Validate each field against its type and constraints",
+            "Return validation results"
+          ]
+        }
+      }
+    },
+    "Model": {
+      "Description": "Represents a data model in the specification",
+      "Attributes": {
+        "name": "Text required unique",
+        "description": "Text required",
+        "attributes": "Map from Text to Attribute",
+        "behaviors": "Map from Text to Behavior",
+        "relations": "List of Relation optional"
+      },
+      "Behaviors": {
+        "validateInstance": {
+          "Description": "Validates if an instance conforms to this model",
+          "Steps": [
+            "Check instance has required attributes",
+            "Validate each attribute against its type and constraints",
+            "Return validation results"
+          ]
+        }
+      },
+      "Relations": [
+        "has many: Attribute",
+        "has many: Behavior",
+        "has many: Relation"
+      ]
+    },
+    "Attribute": {
+      "Description": "Represents a model attribute",
+      "Attributes": {
+        "name": "Text required",
+        "type": "DataType required",
+        "constraints": "List of Constraint optional",
+        "description": "Text optional"
+      },
+      "Relations": [
+        "has one: DataType",
+        "has many: Constraint"
+      ]
+    },
+    "Behavior": {
+      "Description": "Represents a model behavior or method",
+      "Attributes": {
+        "name": "Text required",
+        "description": "Text required",
+        "parameters": "List of Parameter optional",
+        "returnType": "DataType optional",
+        "steps": "List of Text required",
+        "publishedEvents": "Map from Text to Text optional"
+      },
+      "Relations": [
+        "has many: Parameter",
+        "has one: DataType",
+        "publishes: Event"
+      ]
+    },
+    "Parameter": {
+      "Description": "Represents a parameter for a behavior",
+      "Attributes": {
+        "name": "Text required",
+        "type": "DataType required",
+        "constraints": "List of Constraint optional",
+        "description": "Text optional"
+      },
+      "Relations": [
+        "has one: DataType",
+        "has many: Constraint"
+      ]
+    },
+    "Relation": {
+      "Description": "Represents a relationship between models",
+      "Attributes": {
+        "type": "Text required one of ('has one', 'has many', 'belongs to', 'has and belongs to many')",
+        "targetModel": "Text required",
+        "inverse": "Text optional",
+        "constraints": "List of Constraint optional"
+      }
+    },
+    "View": {
+      "Description": "Represents a UI view in the specification",
+      "Attributes": {
+        "name": "Text required unique",
+        "description": "Text required",
+        "displays": "Map from Text to List of Text optional",
+        "components": "Map from Text to Component required",
+        "layout": "List of Text required",
+        "subscribedEvents": "Map from Text to Text optional"
+      },
+      "Behaviors": {
+        "render": {
+          "Description": "Describes how the view is rendered",
+          "Steps": [
+            "Arrange components according to layout",
+            "Bind data to components",
+            "Setup event handlers"
+          ]
+        }
+      },
+      "Relations": [
+        "displays: Model",
+        "subscribes: Event",
+        "has many: Component"
+      ]
+    },
+    "Component": {
+      "Description": "Represents a UI component in a view",
+      "Attributes": {
+        "type": "Text required",
+        "properties": "Map from Text to Any optional",
+        "events": "Map from Text to Text optional",
+        "children": "List of Component optional"
+      },
+      "Relations": [
+        "has many: Component"
+      ]
+    },
+    "Controller": {
+      "Description": "Represents a controller in the specification",
+      "Attributes": {
+        "name": "Text required unique",
+        "description": "Text required",
+        "actions": "Map from Text to Action required",
+        "routes": "Map from Text to Text optional",
+        "subscribedEvents": "Map from Text to Text optional"
+      },
+      "Relations": [
+        "has many: Action",
+        "subscribes: Event"
+      ]
+    },
+    "Action": {
+      "Description": "Represents a controller action",
+      "Attributes": {
+        "name": "Text required",
+        "description": "Text required",
+        "parameters": "List of Parameter optional",
+        "requires": "List of Text optional",
+        "ensures": "List of Text optional",
+        "steps": "List of Text required",
+        "publishedEvents": "Map from Text to Text optional"
+      },
+      "Relations": [
+        "has many: Parameter",
+        "publishes: Event"
+      ]
+    },
+    "Service": {
+      "Description": "Represents a service in the specification",
+      "Attributes": {
+        "name": "Text required unique",
+        "description": "Text required",
+        "operations": "Map from Text to Operation required",
+        "subscribedEvents": "Map from Text to Text optional"
+      },
+      "Relations": [
+        "has many: Operation",
+        "subscribes: Event"
+      ]
+    },
+    "Operation": {
+      "Description": "Represents a service operation",
+      "Attributes": {
+        "name": "Text required",
+        "description": "Text required",
+        "parameters": "List of Parameter optional",
+        "returnType": "DataType optional",
+        "steps": "List of Text required",
+        "publishedEvents": "Map from Text to Text optional"
+      },
+      "Relations": [
+        "has many: Parameter",
+        "has one: DataType",
+        "publishes: Event"
+      ]
+    }
+  },
+  "Views": {
+    "SpecificationEditorView": {
+      "Description": "Editor interface for creating and editing specifications",
+      "Components": {
+        "specHeader:Section": {
+          "Properties": {
+            "title": "Specification Details"
+          },
+          "Children": {
+            "nameInput:TextInput": {
+              "Properties": {
+                "label": "Name",
+                "required": true
+              }
+            },
+            "descriptionInput:TextArea": {
+              "Properties": {
+                "label": "Description"
+              }
+            }
+          }
+        },
+        "sectionTabs:TabContainer": {
+          "Properties": {
+            "tabs": [
+              "Events",
+              "Models",
+              "Views",
+              "Controllers",
+              "Services"
+            ]
+          },
+          "Events": {
+            "onTabChange": "EditorController.changeSection"
+          }
+        },
+        "contentEditor:DynamicEditor": {
+          "Properties": {
+            "activeSection": "Models"
+          },
+          "Events": {
+            "onSave": "EditorController.saveSection"
+          }
+        },
+        "validationPanel:Panel": {
+          "Properties": {
+            "visible": false,
+            "title": "Validation Results"
+          }
+        }
+      },
+      "Layout": [
+        "specHeader at top",
+        "sectionTabs below specHeader",
+        "contentEditor below sectionTabs filling remaining space",
+        "validationPanel at bottom collapsible"
+      ],
+      "Subscribes": {
+        "SpecificationValidated": "showValidationResults"
+      }
+    },
+    "SpecificationVisualizer": {
+      "Description": "Visualization of the specification structure",
+      "Components": {
+        "diagramView:InteractiveDiagram": {
+          "Properties": {
+            "showRelations": true,
+            "highlightActive": true
+          },
+          "Events": {
+            "onElementClick": "VisualizerController.selectElement"
+          }
+        },
+        "detailsPanel:Panel": {
+          "Properties": {
+            "visible": false,
+            "title": "Element Details"
+          }
+        }
+      },
+      "Layout": [
+        "diagramView filling space",
+        "detailsPanel at right collapsible width(30%)"
+      ],
+      "Subscribes": {
+        "ElementDefined": "updateDiagram"
+      }
+    }
+  },
+  "Controllers": {
+    "EditorController": {
+      "Description": "Manages the specification editing process",
+      "Actions": {
+        "createSpecification": {
+          "Description": "Creates a new blank specification",
+          "Steps": [
+            "Initialize specification with default structure",
+            "Generate unique ID for specification",
+            "Set up empty containers for each section"
+          ],
+          "Publishes": {
+            "SpecificationCreated": "when specification is initialized"
+          }
+        },
+        "saveSection": {
+          "Description": "Saves changes to a specification section",
+          "Steps": [
+            "Validate section content",
+            "Update section in specification",
+            "Mark specification as modified"
+          ],
+          "Publishes": {
+            "ElementDefined": "when a new element is defined"
+          }
+        },
+        "validateSpecification": {
+          "Description": "Validates the entire specification",
+          "Steps": [
+            "Check all required sections exist",
+            "Validate each section against schema",
+            "Verify cross-references between sections",
+            "Collect and format validation messages"
+          ],
+          "Publishes": {
+            "SpecificationValidated": "when validation completes"
+          }
+        },
+        "exportSpecification": {
+          "Description": "Exports the specification to a chosen format",
+          "Steps": [
+            "Validate specification is complete",
+            "Convert to target format (YAML, JSON, etc.)",
+            "Generate output file"
+          ]
+        }
+      },
+      "Routes": {
+        "/editor/new": "createSpecification",
+        "/editor/{id}": "loadSpecification",
+        "/editor/{id}/validate": "validateSpecification",
+        "/editor/{id}/export": "exportSpecification"
+      },
+      "Subscribes": {
+        "ElementDefined": "updateDependencies"
+      }
+    },
+    "VisualizerController": {
+      "Description": "Manages the visualization of specifications",
+      "Actions": {
+        "visualizeSpecification": {
+          "Description": "Creates a visual representation of a specification",
+          "Steps": [
+            "Load specification data",
+            "Generate node graph of elements",
+            "Map relations between elements",
+            "Layout diagram for optimal visibility"
+          ]
+        },
+        "selectElement": {
+          "Description": "Selects an element for detailed view",
+          "Steps": [
+            "Highlight selected element in diagram",
+            "Load element details",
+            "Display details in panel"
+          ]
+        }
+      },
+      "Routes": {
+        "/visualize/{id}": "visualizeSpecification"
+      },
+      "Subscribes": {
+        "SpecificationValidated": "refreshVisualization"
+      }
+    }
+  },
+  "Services": {
+    "ValidationService": {
+      "Description": "Provides validation capabilities for specifications",
+      "Operations": {
+        "validateSpecification": {
+          "Description": "Performs comprehensive validation of a specification",
+          "Steps": [
+            "Check structural validity",
+            "Validate semantic correctness",
+            "Verify consistency across elements",
+            "Generate detailed validation report"
+          ]
+        }
+      },
+      "Subscribes": {
+        "SpecificationCreated": "initializeValidation"
+      }
+    },
+    "ExportService": {
+      "Description": "Handles exporting specifications to various formats",
+      "Operations": {
+        "exportToYAML": {
+          "Description": "Exports specification to YAML format",
+          "Steps": [
+            "Convert specification object to YAML structure",
+            "Format according to YAML best practices",
+            "Generate YAML file"
+          ]
+        },
+        "exportToJSON": {
+          "Description": "Exports specification to JSON format",
+          "Steps": [
+            "Convert specification object to JSON structure",
+            "Format according to JSON best practices",
+            "Generate JSON file"
+          ]
+        },
+        "generateDocumentation": {
+          "Description": "Generates human-readable documentation from specification",
+          "Steps": [
+            "Extract documentation elements from specification",
+            "Format into structured document",
+            "Generate documentation in specified format (HTML, PDF, MD)"
+          ]
+        }
+      },
+      "Subscribes": {
+        "SpecificationValidated": "offerExportOptions"
+      }
+    }
+  }
+}

@@ -1,0 +1,377 @@
+{
+  "Application": "GuestHouseBookingSystem",
+  "Description": "A multi-property guest house booking management system with visual timeline interface",
+  "Events": {
+    "HouseCreated": {
+      "Description": "Triggered when a new guest house is created",
+      "Payload": {
+        "houseId": "Text",
+        "name": "Text",
+        "address": "Text optional",
+        "createdAt": "DateTime"
+      }
+    },
+    "RoomAdded": {
+      "Description": "Triggered when a new room is added to a house",
+      "Payload": {
+        "roomId": "Text",
+        "houseId": "Text",
+        "name": "Text",
+        "createdAt": "DateTime"
+      }
+    },
+    "BookingCreated": {
+      "Description": "Triggered when a new booking is created",
+      "Payload": {
+        "bookingId": "Text",
+        "roomId": "Text",
+        "guestName": "Text",
+        "checkIn": "Date",
+        "checkOut": "Date",
+        "notes": "Text optional",
+        "createdAt": "DateTime"
+      }
+    },
+    "BookingUpdated": {
+      "Description": "Triggered when an existing booking is modified",
+      "Payload": {
+        "bookingId": "Text",
+        "roomId": "Text",
+        "guestName": "Text",
+        "checkIn": "Date",
+        "checkOut": "Date",
+        "notes": "Text optional",
+        "updatedAt": "DateTime"
+      }
+    },
+    "BookingDeleted": {
+      "Description": "Triggered when a booking is deleted",
+      "Payload": {
+        "bookingId": "Text",
+        "roomId": "Text",
+        "deletedAt": "DateTime"
+      }
+    },
+    "UserAuthenticated": {
+      "Description": "Triggered when a user successfully authenticates",
+      "Payload": {
+        "userId": "Text",
+        "email": "Text",
+        "authenticatedAt": "DateTime"
+      }
+    }
+  },
+  "Models": {
+    "House": {
+      "Description": "Represents a guest house property",
+      "Attributes": {
+        "id": "Text required unique",
+        "name": "Text required length(1..255)",
+        "address": "Text optional",
+        "createdAt": "DateTime required"
+      },
+      "Relations": {
+        "has many": "Room"
+      },
+      "Behaviors": {
+        "addRoom": {
+          "Description": "Adds a new room to the house",
+          "Steps": [
+            "Validate room name is unique within house",
+            "Create new room record",
+            "Associate room with house"
+          ],
+          "Publishes": {
+            "RoomAdded": "when room is successfully created"
+          }
+        }
+      }
+    },
+    "Room": {
+      "Description": "Represents a room within a guest house",
+      "Attributes": {
+        "id": "Text required unique",
+        "houseId": "Text required",
+        "name": "Text required length(1..255)",
+        "createdAt": "DateTime required"
+      },
+      "Relations": {
+        "belongs to": "House",
+        "has many": "Booking"
+      },
+      "Behaviors": {
+        "checkAvailability": {
+          "Description": "Checks if room is available for given dates",
+          "Steps": [
+            "Query existing bookings for date range",
+            "Check for conflicts",
+            "Return availability status"
+          ]
+        }
+      }
+    },
+    "Booking": {
+      "Description": "Represents a room booking",
+      "Attributes": {
+        "id": "Text required unique",
+        "roomId": "Text required",
+        "guestName": "Text required length(1..255)",
+        "checkIn": "Date required",
+        "checkOut": "Date required",
+        "notes": "Text optional",
+        "createdAt": "DateTime required"
+      },
+      "Relations": {
+        "belongs to": "Room"
+      },
+      "Behaviors": {
+        "validateDates": {
+          "Description": "Validates booking dates",
+          "Steps": [
+            "Ensure check-out is after check-in",
+            "Check for date conflicts",
+            "Return validation result"
+          ]
+        }
+      }
+    },
+    "User": {
+      "Description": "Represents an authenticated system user",
+      "Attributes": {
+        "id": "Text required unique",
+        "email": "Text required matches(email-pattern)",
+        "isAllowed": "Boolean required",
+        "lastLogin": "DateTime optional"
+      },
+      "Behaviors": {
+        "validateAccess": {
+          "Description": "Validates if user has access to the system",
+          "Steps": [
+            "Check if email is in allowlist",
+            "Return access status"
+          ]
+        }
+      }
+    }
+  },
+  "Views": {
+    "BookingManagerView": {
+      "Description": "Main interface for managing bookings",
+      "Components": {
+        "houseSelector": {
+          "type": "Dropdown",
+          "Properties": {
+            "label": "Select House",
+            "placeholder": "Choose a house"
+          },
+          "Events": {
+            "onChange": "BookingController.selectHouse"
+          }
+        },
+        "timelineView": {
+          "type": "Timeline",
+          "Properties": {
+            "viewOptions": ["Week", "2 Weeks", "Month", "3 Months", "6 Months"],
+            "highlightWeekends": true
+          },
+          "Events": {
+            "onDateSelect": "BookingController.createBooking",
+            "onBookingClick": "BookingController.editBooking"
+          }
+        },
+        "bookingList": {
+          "type": "Table",
+          "Properties": {
+            "columns": ["Guest", "Room", "Check-in", "Check-out", "Notes"]
+          },
+          "Events": {
+            "onRowClick": "BookingController.showBookingDetails"
+          }
+        }
+      },
+      "Layout": [
+        "houseSelector at top",
+        "timelineView below houseSelector filling space",
+        "bookingList at bottom collapsible"
+      ],
+      "Subscribes": {
+        "BookingCreated": "refreshTimeline",
+        "BookingUpdated": "refreshTimeline",
+        "BookingDeleted": "refreshTimeline"
+      }
+    },
+    "BookingDialog": {
+      "Description": "Dialog for creating and editing bookings",
+      "Components": {
+        "guestInput": {
+          "type": "TextInput",
+          "Properties": {
+            "label": "Guest Name",
+            "required": true
+          }
+        },
+        "dateRange": {
+          "type": "DateRangePicker",
+          "Properties": {
+            "label": "Booking Dates",
+            "required": true
+          }
+        },
+        "notesInput": {
+          "type": "TextArea",
+          "Properties": {
+            "label": "Notes",
+            "optional": true
+          }
+        }
+      },
+      "Layout": [
+        "guestInput at top",
+        "dateRange below guestInput",
+        "notesInput below dateRange"
+      ],
+      "Subscribes": {
+        "BookingCreated": "closeDialog",
+        "BookingUpdated": "closeDialog"
+      }
+    }
+  },
+  "Controllers": {
+    "BookingController": {
+      "Description": "Manages booking operations",
+      "Actions": {
+        "createBooking": {
+          "Description": "Creates a new booking",
+          "Requires": [
+            "Room is available for selected dates",
+            "Guest name is provided",
+            "Check-out date is after check-in date"
+          ],
+          "Steps": [
+            "Validate booking dates",
+            "Create new booking record",
+            "Update room availability"
+          ],
+          "Publishes": {
+            "BookingCreated": "when booking is successfully created"
+          }
+        },
+        "editBooking": {
+          "Description": "Modifies an existing booking",
+          "Requires": [
+            "Booking exists",
+            "New dates are available"
+          ],
+          "Steps": [
+            "Validate new booking dates",
+            "Update booking record",
+            "Update room availability"
+          ],
+          "Publishes": {
+            "BookingUpdated": "when booking is successfully updated"
+          }
+        },
+        "deleteBooking": {
+          "Description": "Removes a booking",
+          "Requires": [
+            "Booking exists"
+          ],
+          "Steps": [
+            "Delete booking record",
+            "Update room availability"
+          ],
+          "Publishes": {
+            "BookingDeleted": "when booking is successfully deleted"
+          }
+        }
+      },
+      "Routes": {
+        "/bookings/new": "createBooking",
+        "/bookings/{id}": "editBooking",
+        "/bookings/{id}/delete": "deleteBooking"
+      },
+      "Subscribes": {
+        "RoomAdded": "updateHouseRooms",
+        "HouseCreated": "updateHouseList"
+      }
+    },
+    "AuthController": {
+      "Description": "Handles user authentication",
+      "Actions": {
+        "authenticate": {
+          "Description": "Authenticates a user",
+          "Requires": [
+            "User email is in allowlist"
+          ],
+          "Steps": [
+            "Validate Google OAuth credentials",
+            "Check email against allowlist",
+            "Create or update user session"
+          ],
+          "Publishes": {
+            "UserAuthenticated": "when authentication is successful"
+          }
+        }
+      },
+      "Routes": {
+        "/api/auth/signin": "authenticate",
+        "/api/auth/signout": "signout"
+      },
+      "Subscribes": {
+        "UserAuthenticated": "updateUserSession"
+      }
+    }
+  },
+  "Services": {
+    "TimelineService": {
+      "Description": "Provides timeline visualization capabilities",
+      "Operations": {
+        "generateTimeline": {
+          "Description": "Generates timeline view for selected date range",
+          "Steps": [
+            "Load bookings for date range",
+            "Calculate room availability",
+            "Generate timeline visualization"
+          ]
+        },
+        "highlightWeekends": {
+          "Description": "Highlights weekend dates in timeline",
+          "Steps": [
+            "Identify weekend dates in range",
+            "Apply weekend styling"
+          ]
+        }
+      },
+      "Subscribes": {
+        "BookingCreated": "refreshTimeline",
+        "BookingUpdated": "refreshTimeline",
+        "BookingDeleted": "refreshTimeline"
+      }
+    },
+    "ValidationService": {
+      "Description": "Provides validation for bookings and dates",
+      "Operations": {
+        "validateBookingDates": {
+          "Description": "Validates booking date ranges",
+          "Steps": [
+            "Check check-in is before check-out",
+            "Verify dates are in the future",
+            "Check for booking conflicts"
+          ]
+        },
+        "validateRoomAvailability": {
+          "Description": "Checks room availability for dates",
+          "Steps": [
+            "Query existing bookings",
+            "Check for conflicts",
+            "Return availability status"
+          ]
+        }
+      },
+      "Subscribes": {
+        "BookingCreated": "validateNewBooking",
+        "BookingUpdated": "validateUpdatedBooking"
+      }
+    }
+  }
+} 

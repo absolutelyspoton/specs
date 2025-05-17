@@ -1,0 +1,582 @@
+{
+  "Application": "InventoryManagementSystem",
+  "Description": "A system for managing product catalog and inventory with real-time updates",
+  "Events": {
+    "ProductAdded": {
+      "Description": "Triggered when a new product is added to the catalog",
+      "Payload": {
+        "productId": "Text",
+        "name": "Text",
+        "category": "Text",
+        "price": "Number",
+        "initialInventory": "Number"
+      }
+    },
+    "ProductDeleted": {
+      "Description": "Triggered when a product is removed from the catalog",
+      "Payload": {
+        "productId": "Text"
+      }
+    },
+    "ProductPurchased": {
+      "Description": "Triggered when inventory is added to a product (restock)",
+      "Payload": {
+        "productId": "Text",
+        "quantity": "Number",
+        "newInventoryLevel": "Number",
+        "timestamp": "DateTime"
+      }
+    },
+    "ProductSold": {
+      "Description": "Triggered when inventory is removed from a product (sale)",
+      "Payload": {
+        "productId": "Text",
+        "quantity": "Number",
+        "newInventoryLevel": "Number",
+        "timestamp": "DateTime"
+      }
+    },
+    "LowInventoryDetected": {
+      "Description": "Triggered when product inventory falls below threshold",
+      "Payload": {
+        "productId": "Text",
+        "productName": "Text",
+        "currentInventory": "Number",
+        "threshold": "Number"
+      }
+    },
+    "OutOfStockDetected": {
+      "Description": "Triggered when product inventory reaches zero",
+      "Payload": {
+        "productId": "Text",
+        "productName": "Text",
+        "timestamp": "DateTime"
+      }
+    }
+  },
+  "Models": {
+    "Product": {
+      "Description": "Represents a product in the inventory system",
+      "Attributes": {
+        "id": "Text required unique",
+        "name": "Text required length(1..200)",
+        "description": "Text optional",
+        "price": "Number required range(0.01..*)",
+        "inventory": "Number required range(0..*)",
+        "inventoryThreshold": "Number required default(5)",
+        "category": "Text required one of (Electronics, Clothing, Books, Food, Other)"
+      },
+      "Behaviors": {
+        "increaseInventory": {
+          "Description": "Increases the inventory by the specified quantity",
+          "Steps": [
+            "Add quantity to inventory",
+            "Save the updated inventory"
+          ],
+          "Publishes": {
+            "ProductPurchased": "when inventory is increased"
+          }
+        },
+        "decreaseInventory": {
+          "Description": "Reduces the inventory by the specified quantity",
+          "Steps": [
+            "Verify sufficient inventory exists",
+            "Subtract quantity from inventory",
+            "Save the updated inventory"
+          ],
+          "Publishes": {
+            "ProductSold": "when inventory is decreased",
+            "LowInventoryDetected": "when inventory falls below inventoryThreshold",
+            "OutOfStockDetected": "when inventory reaches zero"
+          }
+        }
+      }
+    },
+    "Transaction": {
+      "Description": "Represents a purchase or sale transaction",
+      "Attributes": {
+        "id": "Text required unique",
+        "productId": "Text required",
+        "transactionType": "Text required one of (purchase, sale)",
+        "quantity": "Number required range(1..*)",
+        "unitPrice": "Number required range(0.01..*)",
+        "totalAmount": "Number required range(0.01..*)",
+        "timestamp": "DateTime required"
+      }
+    }
+  },
+  "Controllers": {
+    "ProductController": {
+      "Description": "Handles product-related operations",
+      "Actions": {
+        "addProduct": {
+          "Description": "Adds a new product to the catalog",
+          "Requires": [
+            "Product name is provided",
+            "Product price is valid",
+            "Initial inventory quantity is valid"
+          ],
+          "Ensures": [
+            "New product is created and added to catalog"
+          ],
+          "Steps": [
+            "Validate product data",
+            "Generate unique product ID",
+            "Create new product record",
+            "Return the created product"
+          ],
+          "Publishes": {
+            "ProductAdded": "when product is successfully created"
+          }
+        },
+        "deleteProduct": {
+          "Description": "Removes a product from the catalog",
+          "Requires": [
+            "Product exists in the catalog",
+            "Product ID is provided"
+          ],
+          "Ensures": [
+            "Product is removed from the catalog"
+          ],
+          "Steps": [
+            "Verify product exists",
+            "Delete product record",
+            "Return success confirmation"
+          ],
+          "Publishes": {
+            "ProductDeleted": "when product is successfully deleted"
+          }
+        },
+        "purchaseInventory": {
+          "Description": "Adds inventory to a product (restocking)",
+          "Requires": [
+            "Product exists in the catalog",
+            "Product ID is provided",
+            "Purchase quantity is greater than zero"
+          ],
+          "Ensures": [
+            "Product inventory is increased",
+            "Purchase transaction is recorded"
+          ],
+          "Steps": [
+            "Verify product exists",
+            "Create purchase transaction record",
+            "Increase product inventory",
+            "Return updated product"
+          ]
+        },
+        "sellProduct": {
+          "Description": "Reduces inventory of a product (sales)",
+          "Requires": [
+            "Product exists in the catalog",
+            "Product ID is provided",
+            "Sell quantity is greater than zero",
+            "Sufficient inventory is available"
+          ],
+          "Ensures": [
+            "Product inventory is decreased",
+            "Sale transaction is recorded"
+          ],
+          "Steps": [
+            "Verify product exists",
+            "Verify sufficient inventory",
+            "Create sale transaction record",
+            "Decrease product inventory",
+            "Return updated product"
+          ]
+        },
+        "getProductCatalog": {
+          "Description": "Returns all products in the catalog",
+          "Ensures": [
+            "List of all products is returned"
+          ],
+          "Steps": [
+            "Get all products from the repository",
+            "Return product list"
+          ]
+        },
+        "getProductDetails": {
+          "Description": "Returns details for a specific product",
+          "Requires": [
+            "Product ID is provided",
+            "Product exists in the catalog"
+          ],
+          "Ensures": [
+            "Product details are returned"
+          ],
+          "Steps": [
+            "Verify product exists",
+            "Return product details"
+          ]
+        },
+        "filterByCategory": {
+          "Description": "Filters products by category",
+          "Requires": [
+            "Category is a valid product category"
+          ],
+          "Ensures": [
+            "Returns filtered list of products"
+          ],
+          "Steps": [
+            "Get all products",
+            "Filter products by category if category is specified",
+            "Return filtered products"
+          ]
+        },
+        "searchProducts": {
+          "Description": "Searches products by name or description",
+          "Requires": [
+            "Search term is provided"
+          ],
+          "Ensures": [
+            "Returns matching products"
+          ],
+          "Steps": [
+            "Get all products",
+            "Filter products by search term",
+            "Return matching products"
+          ]
+        }
+      },
+      "Routes": {
+        "/products": "getProductCatalog",
+        "/products/add": "addProduct",
+        "/products/delete/{id}": "deleteProduct",
+        "/products/purchase": "purchaseInventory",
+        "/products/sell": "sellProduct",
+        "/products/filter": "filterByCategory",
+        "/products/search": "searchProducts",
+        "/products/{id}": "getProductDetails"
+      }
+    },
+    "TransactionController": {
+      "Description": "Handles transaction-related operations",
+      "Actions": {
+        "getTransactionHistory": {
+          "Description": "Returns transaction history for a product",
+          "Requires": [
+            "Product ID is provided"
+          ],
+          "Ensures": [
+            "Transaction history is returned"
+          ],
+          "Steps": [
+            "Get transactions for the specified product",
+            "Return transaction list"
+          ]
+        }
+      },
+      "Routes": {
+        "/transactions/{productId}": "getTransactionHistory"
+      }
+    }
+  },
+  "Views": {
+    "ProductCatalogView": {
+      "Description": "Browse available products with inventory information",
+      "Components": {
+        "searchBar:SearchInput": {
+          "Properties": {
+            "placeholder": "Search products..."
+          },
+          "Events": {
+            "onSearch": "ProductController.searchProducts"
+          }
+        },
+        "categoryFilter:DropdownMenu": {
+          "Properties": {
+            "placeholder": "Filter by category",
+            "options": [
+              {
+                "label": "All Categories",
+                "value": ""
+              },
+              {
+                "label": "Electronics",
+                "value": "Electronics"
+              },
+              {
+                "label": "Clothing",
+                "value": "Clothing"
+              },
+              {
+                "label": "Books",
+                "value": "Books"
+              },
+              {
+                "label": "Food",
+                "value": "Food"
+              },
+              {
+                "label": "Other",
+                "value": "Other"
+              }
+            ]
+          },
+          "Events": {
+            "onChange": "ProductController.filterByCategory"
+          }
+        },
+        "inventoryStatus:Panel": {
+          "Properties": {
+            "title": "Inventory Status",
+            "content": "Total Products: {count} | Low Inventory: {lowCount} | Out of Stock: {outCount}"
+          }
+        },
+        "productList:DataGrid": {
+          "Properties": {
+            "columns": [
+              "name",
+              "category",
+              "price",
+              "inventory"
+            ],
+            "data": [
+              {
+                "id": "1",
+                "name": "Smartphone",
+                "description": "Latest model smartphone with advanced features",
+                "price": 599.99,
+                "inventory": 50,
+                "inventoryThreshold": 10,
+                "category": "Electronics"
+              },
+              {
+                "id": "2",
+                "name": "Laptop",
+                "description": "High-performance laptop for professionals",
+                "price": 999.99,
+                "inventory": 30,
+                "inventoryThreshold": 5,
+                "category": "Electronics"
+              },
+              {
+                "id": "3",
+                "name": "T-Shirt",
+                "description": "Cotton t-shirt in various colors",
+                "price": 29.99,
+                "inventory": 100,
+                "inventoryThreshold": 20,
+                "category": "Clothing"
+              },
+              {
+                "id": "4",
+                "name": "Jeans",
+                "description": "Classic fit denim jeans",
+                "price": 49.99,
+                "inventory": 75,
+                "inventoryThreshold": 15,
+                "category": "Clothing"
+              },
+              {
+                "id": "5",
+                "name": "Novel",
+                "description": "Bestselling fiction novel",
+                "price": 14.99,
+                "inventory": 200,
+                "inventoryThreshold": 30,
+                "category": "Books"
+              }
+            ]
+          },
+          "Events": {
+            "onRowClick": "showProductDetails"
+          }
+        }
+      },
+      "Subscribes": {
+        "ProductAdded": "refreshProductList",
+        "ProductDeleted": "refreshProductList",
+        "ProductPurchased": "updateProductInventory",
+        "ProductSold": "updateProductInventory",
+        "LowInventoryDetected": "highlightLowInventory",
+        "OutOfStockDetected": "highlightOutOfStock"
+      }
+    },
+    "ProductDetailView": {
+      "Description": "View and manage a specific product",
+      "Components": {
+        "productDetails:Panel": {
+          "Properties": {
+            "title": "{product.name}"
+          }
+        },
+        "detailsForm:Form": {
+          "Properties": {
+            "fields": [
+              {
+                "name": "name",
+                "label": "Product Name",
+                "type": "text",
+                "required": true
+              },
+              {
+                "name": "description",
+                "label": "Description",
+                "type": "textarea"
+              },
+              {
+                "name": "price",
+                "label": "Price",
+                "type": "number",
+                "min": 0.01,
+                "required": true
+              },
+              {
+                "name": "category",
+                "label": "Category",
+                "type": "select",
+                "options": [
+                  {"label": "Electronics", "value": "Electronics"},
+                  {"label": "Clothing", "value": "Clothing"},
+                  {"label": "Books", "value": "Books"},
+                  {"label": "Food", "value": "Food"},
+                  {"label": "Other", "value": "Other"}
+                ],
+                "required": true
+              },
+              {
+                "name": "inventory",
+                "label": "Current Inventory",
+                "type": "number",
+                "readOnly": true
+              },
+              {
+                "name": "inventoryThreshold",
+                "label": "Low Inventory Threshold",
+                "type": "number",
+                "min": 1,
+                "required": true
+              }
+            ]
+          }
+        },
+        "inventoryActions:Panel": {
+          "Properties": {
+            "title": "Inventory Management"
+          }
+        },
+        "purchaseForm:Form": {
+          "Properties": {
+            "fields": [
+              {
+                "name": "quantity",
+                "label": "Purchase Quantity",
+                "type": "number",
+                "min": 1,
+                "required": true
+              }
+            ],
+            "submitText": "Add Inventory"
+          },
+          "Events": {
+            "onSubmit": "ProductController.purchaseInventory"
+          }
+        },
+        "sellForm:Form": {
+          "Properties": {
+            "fields": [
+              {
+                "name": "quantity",
+                "label": "Sell Quantity",
+                "type": "number",
+                "min": 1,
+                "required": true
+              }
+            ],
+            "submitText": "Sell Product"
+          },
+          "Events": {
+            "onSubmit": "ProductController.sellProduct"
+          }
+        },
+        "deleteButton:Button": {
+          "Properties": {
+            "text": "Delete Product",
+            "type": "danger"
+          },
+          "Events": {
+            "onClick": "ProductController.deleteProduct"
+          }
+        },
+        "transactionHistory:DataGrid": {
+          "Properties": {
+            "title": "Transaction History",
+            "columns": [
+              "transactionType",
+              "quantity",
+              "unitPrice",
+              "totalAmount",
+              "timestamp"
+            ]
+          }
+        }
+      },
+      "Subscribes": {
+        "ProductPurchased": "updateInventoryDisplay",
+        "ProductSold": "updateInventoryDisplay"
+      }
+    },
+    "NewProductView": {
+      "Description": "Add a new product to the catalog",
+      "Components": {
+        "productForm:Form": {
+          "Properties": {
+            "fields": [
+              {
+                "name": "name",
+                "label": "Product Name",
+                "type": "text",
+                "required": true
+              },
+              {
+                "name": "description",
+                "label": "Description",
+                "type": "textarea"
+              },
+              {
+                "name": "price",
+                "label": "Price",
+                "type": "number",
+                "min": 0.01,
+                "required": true
+              },
+              {
+                "name": "category",
+                "label": "Category",
+                "type": "select",
+                "options": [
+                  {"label": "Electronics", "value": "Electronics"},
+                  {"label": "Clothing", "value": "Clothing"},
+                  {"label": "Books", "value": "Books"},
+                  {"label": "Food", "value": "Food"},
+                  {"label": "Other", "value": "Other"}
+                ],
+                "required": true
+              },
+              {
+                "name": "inventory",
+                "label": "Initial Inventory",
+                "type": "number",
+                "min": 0,
+                "required": true
+              },
+              {
+                "name": "inventoryThreshold",
+                "label": "Low Inventory Threshold",
+                "type": "number",
+                "min": 1,
+                "default": 5,
+                "required": true
+              }
+            ],
+            "submitText": "Add Product"
+          },
+          "Events": {
+            "onSubmit": "ProductController.addProduct"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,261 @@
+{
+  "Application": "ECommerceSystem",
+  "Description": "An e-commerce system for managing products and orders",
+  "Events": {
+    "OrderPlaced": {
+      "Description": "Triggered when a new order is successfully placed",
+      "Payload": {
+        "orderId": "Text",
+        "customerId": "Text",
+        "orderTotal": "Number",
+        "orderItems": "List of Any"
+      }
+    },
+    "OrderStatusChanged": {
+      "Description": "Triggered when an order's status changes",
+      "Payload": {
+        "orderId": "Text",
+        "oldStatus": "Text",
+        "newStatus": "Text"
+      }
+    },
+    "LowInventoryDetected": {
+      "Description": "Triggered when product inventory falls below threshold",
+      "Payload": {
+        "productId": "Text",
+        "currentInventory": "Number",
+        "threshold": "Number"
+      }
+    }
+  },
+  "Models": {
+    "Product": {
+      "Description": "Represents a product available for purchase",
+      "Attributes": {
+        "id": "Text required unique",
+        "name": "Text required length(1..200)",
+        "description": "Text optional",
+        "price": "Number required range(0.01..*)",
+        "inventory": "Number required range(0..*)",
+        "inventoryThreshold": "Number required default(5)",
+        "Category": "Text required one of (Electronics, Clothing, Books)"
+      },
+      "Behaviors": {
+        "decreaseInventory": {
+          "Description": "Reduces the inventory by the specified quantity",
+          "Steps": [
+            "Subtract quantity from inventory",
+            "Save the updated inventory"
+          ],
+          "Publishes": {
+            "LowInventoryDetected": "when inventory falls below inventoryThreshold"
+          }
+        }
+      }
+    },
+    "Order": {
+      "Description": "Represents a customer order",
+      "Attributes": {
+        "id": "Text required unique",
+        "customerId": "Text required",
+        "date": "DateTime required",
+        "total": "Number required range(0.01..*)",
+        "status": "Text required one of (pending, paid, shipped, delivered, canceled)"
+      },
+      "Behaviors": {
+        "updateStatus": {
+          "Description": "Updates the order status",
+          "Steps": [
+            "Store the current status as oldStatus",
+            "Update status to newStatus"
+          ],
+          "Publishes": {
+            "OrderStatusChanged": "when status is changed"
+          }
+        }
+      }
+    }
+  },
+  "Controllers": {
+    "OrderController": {
+      "Description": "Handles order-related operations",
+      "Actions": {
+        "placeOrder": {
+          "Description": "Creates a new order for a customer",
+          "Requires": [
+            "Customer exists and is active",
+            "All products exist and have sufficient inventory"
+          ],
+          "Ensures": [
+            "New order is created with pending status",
+            "Product inventory is updated",
+            "Order confirmation is sent to customer"
+          ],
+          "Steps": [
+            "Validate customer exists and is active",
+            "Create new order with pending status",
+            "For each product in order: Verify product exists and has sufficient inventory",
+            "For each product in order: Add order item with current product price",
+            "For each product in order: Update product inventory",
+            "Calculate order total",
+            "Return order confirmation"
+          ],
+          "Publishes": {
+            "OrderPlaced": "when order is successfully created"
+          }
+        }
+      },
+      "Routes": {
+        "/orders/new": "placeOrder",
+        "/orders/{id}": "getOrderDetails"
+      }
+    },
+    "ProductController": {
+      "Description": "Handles product-related operations",
+      "Actions": {
+        "filterByCategory": {
+          "Description": "Filters products by category",
+          "Requires": [
+            "Category is a valid product category"
+          ],
+          "Ensures": [
+            "Returns filtered list of products"
+          ],
+          "Steps": [
+            "Get all products",
+            "Filter products by category if category is specified",
+            "Return filtered products"
+          ]
+        },
+        "searchProducts": {
+          "Description": "Searches products by name or description",
+          "Requires": [
+            "Search term is provided"
+          ],
+          "Ensures": [
+            "Returns matching products"
+          ],
+          "Steps": [
+            "Get all products",
+            "Filter products by search term",
+            "Return matching products"
+          ]
+        }
+      },
+      "Routes": {
+        "/products/filter": "filterByCategory",
+        "/products/search": "searchProducts"
+      }
+    }
+  },
+  "Views": {
+    "ProductCatalogView": {
+      "Description": "Browse available products",
+      "Components": {
+        "searchBar:SearchInput": {
+          "Properties": {
+            "placeholder": "Search products..."
+          },
+          "Events": {
+            "onSearch": "ProductController.searchProducts"
+          }
+        },
+        "categoryFilter:DropdownMenu": {
+          "Properties": {
+            "placeholder": "Filter by category",
+            "options": [
+              {
+                "label": "All Categories",
+                "value": ""
+              },
+              {
+                "label": "Electronics",
+                "value": "Electronics"
+              },
+              {
+                "label": "Clothing",
+                "value": "Clothing"
+              },
+              {
+                "label": "Books",
+                "value": "Books"
+              }
+            ]
+          },
+          "Events": {
+            "onChange": "ProductController.filterByCategory"
+          }
+        },
+        "productList:DataGrid": {
+          "Properties": {
+            "columns": [
+              "name",
+              "price",
+              "Category",
+              "inventory"
+            ],
+            "data": [
+              {
+                "id": "1",
+                "name": "Smartphone",
+                "description": "Latest model smartphone with advanced features",
+                "price": 599.99,
+                "inventory": 50,
+                "inventoryThreshold": 10,
+                "Category": "Electronics"
+              },
+              {
+                "id": "2",
+                "name": "Laptop",
+                "description": "High-performance laptop for professionals",
+                "price": 999.99,
+                "inventory": 30,
+                "inventoryThreshold": 5,
+                "Category": "Electronics"
+              },
+              {
+                "id": "3",
+                "name": "T-Shirt",
+                "description": "Cotton t-shirt in various colors",
+                "price": 29.99,
+                "inventory": 100,
+                "inventoryThreshold": 20,
+                "Category": "Clothing"
+              },
+              {
+                "id": "4",
+                "name": "Jeans",
+                "description": "Classic fit denim jeans",
+                "price": 49.99,
+                "inventory": 75,
+                "inventoryThreshold": 15,
+                "Category": "Clothing"
+              },
+              {
+                "id": "5",
+                "name": "Novel",
+                "description": "Bestselling fiction novel",
+                "price": 14.99,
+                "inventory": 200,
+                "inventoryThreshold": 30,
+                "Category": "Books"
+              },
+              {
+                "id": "6",
+                "name": "Textbook",
+                "description": "Computer Science textbook",
+                "price": 89.99,
+                "inventory": 40,
+                "inventoryThreshold": 10,
+                "Category": "Books"
+              }
+            ]
+          },
+          "Events": {
+            "onRowClick": "showProductDetails"
+          }
+        }
+      }
+    }
+  }
+}

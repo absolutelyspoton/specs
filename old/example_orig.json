@@ -1,0 +1,254 @@
+{
+  "Application": "ECommerceSystem",
+  "Description": "An e-commerce system for managing products and orders",
+  "Events": {
+    "OrderPlaced": {
+      "Description": "Triggered when a new order is successfully placed",
+      "Payload": {
+        "orderId": "Text",
+        "customerId": "Text",
+        "orderTotal": "Number",
+        "orderItems": "List of Any"
+      }
+    },
+    "OrderStatusChanged": {
+      "Description": "Triggered when an order's status changes",
+      "Payload": {
+        "orderId": "Text",
+        "oldStatus": "Text",
+        "newStatus": "Text"
+      }
+    }
+  },
+  "Views": {
+    "ProductCatalogView": {
+      "Description": "Browse available products",
+      "Components": {
+        "searchBar:SearchInput": {
+          "Properties": {
+            "placeholder": "Search products..."
+          },
+          "Events": {
+            "onSearch": "ProductController.searchProducts"
+          }
+        },
+        "categoryFilter:DropdownMenu": {
+          "Properties": {
+            "placeholder": "Filter by category",
+            "options": [
+              {
+                "label": "All Categories",
+                "value": ""
+              },
+              {
+                "label": "Electronics",
+                "value": "electronics"
+              },
+              {
+                "label": "Clothing",
+                "value": "clothing"
+              },
+              {
+                "label": "Books",
+                "value": "books"
+              }
+            ]
+          },
+          "Events": {
+            "onChange": "ProductController.filterByCategory"
+          }
+        },
+        "productList:DataGrid": {
+          "Properties": {
+            "columns": [
+              "Name",
+              "Price",
+              "Category",
+              "Rating"
+            ],
+            "data": [
+              {
+                "Name": "Smartphone",
+                "Price": "$599.99",
+                "Category": "Electronics",
+                "Rating": "4.5/5"
+              },
+              {
+                "Name": "Laptop",
+                "Price": "$1299.99",
+                "Category": "Electronics",
+                "Rating": "4.8/5"
+              },
+              {
+                "Name": "T-Shirt",
+                "Price": "$29.99",
+                "Category": "Clothing",
+                "Rating": "4.2/5"
+              },
+              {
+                "Name": "Jeans",
+                "Price": "$49.99",
+                "Category": "Clothing",
+                "Rating": "4.4/5"
+              },
+              {
+                "Name": "Novel",
+                "Price": "$14.99",
+                "Category": "Books",
+                "Rating": "4.7/5"
+              }
+            ]
+          },
+          "Events": {
+            "onRowSelect": "viewProductDetails"
+          }
+        }
+      },
+      "Layout": [
+        "searchBar at top",
+        "categoryFilter below searchBar",
+        "productList filling remaining space"
+      ]
+    },
+    "OrderDetailsView": {
+      "Description": "View details of an order",
+      "Components": {
+        "orderHeader:Panel": {
+          "Properties": {
+            "title": "Order #12345"
+          }
+        },
+        "orderStatus:Badge": {
+          "Properties": {
+            "text": "Shipped",
+            "type": "success"
+          }
+        },
+        "orderItems:Table": {
+          "Properties": {
+            "columns": [
+              "Product",
+              "Quantity",
+              "Price",
+              "Subtotal"
+            ],
+            "data": [
+              {
+                "Product": "Smartphone",
+                "Quantity": "1",
+                "Price": "$599.99",
+                "Subtotal": "$599.99"
+              },
+              {
+                "Product": "Phone Case",
+                "Quantity": "1",
+                "Price": "$19.99",
+                "Subtotal": "$19.99"
+              }
+            ]
+          }
+        },
+        "orderTotal:Panel": {
+          "Properties": {
+            "title": "Order Summary",
+            "content": "Total: $619.98"
+          }
+        },
+        "actions:ButtonGroup": {
+          "Properties": {
+            "buttons": [
+              {
+                "label": "Cancel Order",
+                "type": "danger"
+              },
+              {
+                "label": "Track Shipment",
+                "type": "primary"
+              }
+            ]
+          },
+          "Events": {
+            "onClick": "OrderController.performOrderAction"
+          }
+        }
+      },
+      "Layout": [
+        "orderHeader at top with orderStatus inside",
+        "orderItems in middle",
+        "orderTotal below orderItems",
+        "actions at bottom"
+      ],
+      "Subscribes": {
+        "OrderStatusChanged": "refreshOrderStatus"
+      }
+    },
+    "CheckoutView": {
+      "Description": "Complete your purchase",
+      "Components": {
+        "checkoutForm:Form": {
+          "Properties": {
+            "fields": [
+              {
+                "type": "text",
+                "name": "fullName",
+                "label": "Full Name",
+                "required": true
+              },
+              {
+                "type": "email",
+                "name": "email",
+                "label": "Email Address",
+                "required": true
+              },
+              {
+                "type": "text",
+                "name": "address",
+                "label": "Shipping Address",
+                "required": true
+              },
+              {
+                "type": "text",
+                "name": "creditCard",
+                "label": "Credit Card Number",
+                "required": true
+              },
+              {
+                "type": "select",
+                "name": "shippingMethod",
+                "label": "Shipping Method",
+                "options": [
+                  {
+                    "label": "Standard (3-5 days)",
+                    "value": "standard"
+                  },
+                  {
+                    "label": "Express (1-2 days)",
+                    "value": "express"
+                  },
+                  {
+                    "label": "Same Day",
+                    "value": "same_day"
+                  }
+                ]
+              }
+            ],
+            "submitText": "Complete Purchase"
+          },
+          "Events": {
+            "onSubmit": "OrderController.placeOrder"
+          }
+        },
+        "cartSummary:Panel": {
+          "Properties": {
+            "title": "Order Summary",
+            "content": "Total: $619.98 (2 items)"
+          }
+        }
+      },
+      "Layout": [
+        "cartSummary at top",
+        "checkoutForm below"
+      ]
+    }
+  }
+}
