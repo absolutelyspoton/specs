@@ -1,0 +1,25 @@
+[
+  {
+    "repo_name": "Spec Lang",
+    "specs": [
+      {
+        "name": "simple",
+        "url": "https://raw.githubusercontent.com/absolutelyspoton/specs/refs/heads/main/simple.json",
+        "format": "yaml"
+      },
+      {
+        "name": "full example",
+        "url": "https://raw.githubusercontent.com/absolutelyspoton/specs/refs/heads/main/simple.json",
+        "format": "yaml"
+      }
+    ]
+  },
+  {
+    "repo_name": "Dom's Repo",
+    "specs": []
+  },
+  {
+    "repo_name": "Nick's Repo",
+    "specs": []
+  }
+]
