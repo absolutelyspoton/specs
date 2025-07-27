@@ -1,32 +1,23 @@
 [
   {
-    "repo_name": "Spec Lang",
+    "repo_name": "Guesthouse",
     "specs": [
       {
-        "name": "guesthouse",
+        "name": "guesthouse original",
         "url": "https://raw.githubusercontent.com/absolutelyspoton/specs/refs/heads/main/guesthouse.spec.json",
         "format": "yaml"
       },
       {
-        "name": "example full",
-        "url": "https://raw.githubusercontent.com/absolutelyspoton/specs/refs/heads/main/example_full.json",
+        "name": "guesthouse specly",
+        "url": "https://raw.githubusercontent.com/SpecVerse/specverse-lang/refs/heads/main/examples/07-legacy-conversions/07-03-guesthouse-booking-conversion.specly?token=GHSAT0AAAAAADHSRGXRYKCNCO6C5K7TPEG42EGSASQ",
         "format": "yaml"
       },
       {
-        "name": "speclang v2",
-        "url": "https://raw.githubusercontent.com/absolutelyspoton/specs/refs/heads/main/speclang-spec-v2.json",
-        "format": "yaml"
-      },
-      {
-        "name": "speclang v3",
-        "url": "https://raw.githubusercontent.com/absolutelyspoton/specs/refs/heads/main/speclang-spec-v3.json",
-        "format": "yaml"
-      },
-      {
-        "name": "inventory management",
-        "url": "https://raw.githubusercontent.com/absolutelyspoton/specs/refs/heads/main/inventory_management.json",
+        "name": "guesthouse full",
+        "url": "https://raw.githubusercontent.com/SpecVerse/specverse-lang/refs/heads/main/examples/07-legacy-conversions/07-03-guesthouse-booking-conversion.yaml?token=GHSAT0AAAAAADHSRGXQ27F5XUMEUUFNKD4A2EGR7GA",
         "format": "yaml"
       }
+
     ]
   },
   {
