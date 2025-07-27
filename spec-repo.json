@@ -24,6 +24,16 @@
     "repo_name": "Inventory Management",
     "specs": [
       {
+        "name": "inventory management",
+        "url": "https://raw.githubusercontent.com/absolutelyspoton/specs/refs/heads/main/inventory/inventory_management.json",
+        "format": "yaml"
+      },
+      {
+        "name": "inventory management compatible corrected",
+        "url": "https://raw.githubusercontent.com/absolutelyspoton/specs/refs/heads/main/inventory/inventory_management_compatible_corrected.json",
+        "format": "yaml"
+      },
+      {
         "name": "07-02-inventory-management-conversion.specly",
         "url": "https://raw.githubusercontent.com/absolutelyspoton/specs/refs/heads/main/inventory/07-02-inventory-management-conversion.specly",
         "format": "yaml"
