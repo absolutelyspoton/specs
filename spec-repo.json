@@ -3,17 +3,17 @@
     "repo_name": "Guesthouse",
     "specs": [
       {
-        "name": "guesthouse original",
+        "name": "original",
         "url": "https://raw.githubusercontent.com/absolutelyspoton/specs/refs/heads/main/guesthouse.spec.json",
         "format": "yaml"
       },
       {
-        "name": "guesthouse specly",
+        "name": "07-03-guesthouse-booking-conversion.specly",
         "url": "https://raw.githubusercontent.com/SpecVerse/specverse-lang/refs/heads/main/examples/07-legacy-conversions/07-03-guesthouse-booking-conversion.specly?token=GHSAT0AAAAAADHSRGXRYKCNCO6C5K7TPEG42EGSASQ",
         "format": "yaml"
       },
       {
-        "name": "guesthouse full",
+        "name": "07-03-guesthouse-booking-conversion.yaml",
         "url": "https://raw.githubusercontent.com/SpecVerse/specverse-lang/refs/heads/main/examples/07-legacy-conversions/07-03-guesthouse-booking-conversion.yaml?token=GHSAT0AAAAAADHSRGXQ27F5XUMEUUFNKD4A2EGR7GA",
         "format": "yaml"
       }
@@ -21,17 +21,33 @@
     ]
   },
   {
-    "repo_name": "Dom's Repo",
+    "repo_name": "Inventory Management",
     "specs": [
       {
-        "name": "simple",
-        "url": "https://raw.githubusercontent.com/absolutelyspoton/specs/refs/heads/main/simple.json",
+        "name": "07-02-inventory-management-conversion.specly",
+        "url": "https://raw.githubusercontent.com/SpecVerse/specverse-lang/refs/heads/main/examples/07-legacy-conversions/07-02-inventory-management-conversion.specly?token=GHSAT0AAAAAADHSRGXQJWZEOE6PV76EP35C2EGSKSA",
+        "format": "yaml"
+      },
+      {
+        "name": "07-02-inventory-management-conversion.yaml",
+        "url": "https://raw.githubusercontent.com/SpecVerse/specverse-lang/refs/heads/main/examples/07-legacy-conversions/07-02-inventory-management-conversion.yaml?token=GHSAT0AAAAAADHSRGXR6PSFXUFNTNLSQH262EGSK7A",
         "format": "yaml"
       }
     ]
   },
   {
-    "repo_name": "Nick's Repo",
-    "specs": []
+    "repo_name": "ECommerce",
+    "specs": [
+      {
+        "name": "07-01-ecommerce-legacy-conversion.specly",
+        "url": "https://raw.githubusercontent.com/SpecVerse/specverse-lang/refs/heads/main/examples/07-legacy-conversions/07-01-ecommerce-legacy-conversion.specly?token=GHSAT0AAAAAADHSRGXR4KMFKLYWLXR5NJAG2EGSNBQ",
+        "format": "yaml"
+      },
+      {
+        "name": "07-01-ecommerce-legacy-conversion.yaml",
+        "url": "https://raw.githubusercontent.com/SpecVerse/specverse-lang/refs/heads/main/examples/07-legacy-conversions/07-01-ecommerce-legacy-conversion.yaml?token=GHSAT0AAAAAADHSRGXR7MDIYNAZ3Z72DNAU2EGSNTQ",
+        "format": "yaml"
+      }
+    ]
   }
 ]
