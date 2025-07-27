@@ -9,12 +9,12 @@
       },
       {
         "name": "07-03-guesthouse-booking-conversion.specly",
-        "url": "https://raw.githubusercontent.com/absolutelyspoton/specs/refs/heads/main/guesthouse.spec.json",
+        "url": "https://raw.githubusercontent.com/absolutelyspoton/specs/refs/heads/main/guesthouse/07-03-guesthouse-booking-conversion.specly",
         "format": "yaml"
       },
       {
         "name": "07-03-guesthouse-booking-conversion.yaml",
-        "url": "https://raw.githubusercontent.com/SpecVerse/specverse-lang/refs/heads/main/examples/07-legacy-conversions/07-03-guesthouse-booking-conversion.yaml?token=GHSAT0AAAAAADHSRGXQ27F5XUMEUUFNKD4A2EGR7GA",
+        "url": "https://raw.githubusercontent.com/absolutelyspoton/specs/refs/heads/main/guesthouse/07-03-guesthouse-booking-conversion.yaml",
         "format": "yaml"
       }
 
@@ -25,12 +25,12 @@
     "specs": [
       {
         "name": "07-02-inventory-management-conversion.specly",
-        "url": "https://raw.githubusercontent.com/SpecVerse/specverse-lang/refs/heads/main/examples/07-legacy-conversions/07-02-inventory-management-conversion.specly?token=GHSAT0AAAAAADHSRGXQJWZEOE6PV76EP35C2EGSKSA",
+        "url": "https://raw.githubusercontent.com/absolutelyspoton/specs/refs/heads/main/inventory/07-02-inventory-management-conversion.specly",
         "format": "yaml"
       },
       {
         "name": "07-02-inventory-management-conversion.yaml",
-        "url": "https://raw.githubusercontent.com/SpecVerse/specverse-lang/refs/heads/main/examples/07-legacy-conversions/07-02-inventory-management-conversion.yaml?token=GHSAT0AAAAAADHSRGXR6PSFXUFNTNLSQH262EGSK7A",
+        "url": "https://raw.githubusercontent.com/absolutelyspoton/specs/refs/heads/main/inventory/07-02-inventory-management-conversion.yaml",
         "format": "yaml"
       }
     ]
@@ -40,12 +40,12 @@
     "specs": [
       {
         "name": "07-01-ecommerce-legacy-conversion.specly",
-        "url": "https://raw.githubusercontent.com/SpecVerse/specverse-lang/refs/heads/main/examples/07-legacy-conversions/07-01-ecommerce-legacy-conversion.specly?token=GHSAT0AAAAAADHSRGXR4KMFKLYWLXR5NJAG2EGSNBQ",
+        "url": "https://raw.githubusercontent.com/absolutelyspoton/specs/refs/heads/main/ecommerce/07-01-ecommerce-legacy-conversion.specly",
         "format": "yaml"
       },
       {
         "name": "07-01-ecommerce-legacy-conversion.yaml",
-        "url": "https://raw.githubusercontent.com/SpecVerse/specverse-lang/refs/heads/main/examples/07-legacy-conversions/07-01-ecommerce-legacy-conversion.yaml?token=GHSAT0AAAAAADHSRGXR7MDIYNAZ3Z72DNAU2EGSNTQ",
+        "url": "https://raw.githubusercontent.com/absolutelyspoton/specs/refs/heads/main/ecommerce/07-01-ecommerce-legacy-conversion.yaml",
         "format": "yaml"
       }
     ]
